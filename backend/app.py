@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-
+import os
+import joblib
 from telemetry import generate_telemetry, set_failure
 from anomaly import calculate_anomaly_score
 from root_cause import analyze_root_cause
@@ -27,8 +28,11 @@ app.add_middleware(
 )
 
 
-model = joblib.load("network_anomaly_model.pkl")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+model = joblib.load(
+    os.path.join(BASE_DIR, "network_anomaly_model.pkl")
+)
 
 FEATURES = [
     "latency",
