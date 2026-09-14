@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Network Intelligence System</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #0f172a;
+            color: white;
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 12px 25px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .card {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .section {
+            background: #1e293b;
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .critical {
+            color: red;
+        }
+
+        .warning {
+            color: orange;
+        }
+
+        .normal {
+            color: lightgreen;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>🧠 Network Intelligence System</h1>
+
+<button onclick="analyze()">Analyze Network</button>
+
+<div class="section">
+    <h2>Network Status</h2>
+    <h2 id="status">Loading...</h2>
+</div>
+
+<div class="grid" id="devices"></div>
+
+<div class="section">
+    <h2>🎯 Root Cause Analysis</h2>
+    <p>Root Cause: <b id="root">-</b></p>
+    <p>Affected Devices: <b id="affected">-</b></p>
+    <p>Confidence: <b id="confidence">-</b></p>
+</div>
+
+<div class="section">
+    <h2>🔐 Security Assessment</h2>
+    <div id="security">-</div>
+</div>
+
+<div class="section">
+    <h2>📋 Incident Report</h2>
+    <p>Incident ID: <b id="incident">-</b></p>
+    <p>Severity: <b id="severity">-</b></p>
+    <div id="explanation">-</div>
+</div>
+
+
+<script>
+
+async function analyze() {
+
+    const response =
+        await fetch("/analyze?failure=true");
+
+    const data =
+        await response.json();
+
+
+    // Root cause
+
+    document.getElementById("root").innerText =
+        data.root_cause.root_cause;
+
+    document.getElementById("affected").innerText =
+        data.root_cause.affected_devices.join(", ");
+
+    document.getElementById("confidence").innerText =
+        data.root_cause.confidence + "%";
+
+
+    // Incident
+
+    document.getElementById("status").innerText =
+        data.incident.severity;
+
+    document.getElementById("incident").innerText =
+        data.incident.incident_id;
+
+    document.getElementById("severity").innerText =
+        data.incident.severity;
+
+
+    // Explanation
+
+    document.getElementById("explanation").innerHTML =
+        data.incident.explanation
+        .map(x => "<p>• " + x + "</p>")
+        .join("");
+
+
+    // Devices
+
+    const container =
+        document.getElementById("devices");
+
+    container.innerHTML = "";
+
+
+    data.anomaly_detection.forEach(a => {
+
+        let className = "normal";
+
+        if (a.severity === "CRITICAL")
+            className = "critical";
+
+        else if (a.severity === "WARNING")
+            className = "warning";
+
+
+        container.innerHTML += `
+
+            <div class="card">
+
+                <h2>${a.device}</h2>
+
+                <h3 class="${className}">
+                    ${a.severity}
+                </h3>
+
+                <p>
+                    Anomaly Score:
+                    ${a.anomaly_score}
+                </p>
+
+                <p>
+                    ${a.reasons.join(", ")}
+                </p>
+
+            </div>
+
+        `;
+
+    });
+
+
+    // Security
+
+    document.getElementById("security").innerHTML =
+        data.security
+        .map(s =>
+            `<p>
+                <b>${s.device}</b> —
+                ${s.classification}
+                (Score: ${s.security_score})
+            </p>`
+        )
+        .join("");
+
+}
+
+analyze();
+
+</script>
+
+</body>
+</html>
