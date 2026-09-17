@@ -94,7 +94,7 @@
 async function analyze() {
 
     const response =
-        await fetch("/analyze?failure=true");
+        await fetch("https://network-intelligence-system.onrender.com/analyze?failure=true");
 
     const data =
         await response.json();
