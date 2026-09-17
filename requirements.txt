@@ -1,0 +1,9 @@
+@"
+fastapi
+uvicorn
+pandas
+numpy
+scikit-learn
+networkx
+joblib
+"@ | Set-Content requirements.txt
